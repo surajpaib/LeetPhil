@@ -1,4 +1,5 @@
 import type { JudgeProvider } from "@/lib/judge/provider";
+import { GeminiJudgeProvider } from "@/lib/judge/gemini";
 import { MockJudgeProvider } from "@/lib/judge/mock";
 import { OpenAIJudgeProvider } from "@/lib/judge/openai";
 import { OpenRouterJudgeProvider } from "@/lib/judge/openrouter";
@@ -16,6 +17,10 @@ export function createJudgeProvider(): JudgeProvider {
 
   if (provider === "openrouter") {
     return new OpenRouterJudgeProvider();
+  }
+
+  if (provider === "gemini") {
+    return new GeminiJudgeProvider();
   }
 
   throw new Error(`Unsupported JUDGE_PROVIDER: ${provider}`);

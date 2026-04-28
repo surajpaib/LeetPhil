@@ -10,7 +10,7 @@ LeetPhil is a philosophy practice site for plain-text thought problems. Users si
    npm install
    ```
 
-2. Copy `.env.example` to `.env.local` and fill in Supabase plus one judge provider.
+2. Create `.env.local` and fill in Supabase plus one judge provider.
 
 3. Apply the SQL files in `supabase/migrations/` to your Supabase project in order.
 
@@ -37,9 +37,20 @@ Use OpenRouter:
 ```bash
 JUDGE_PROVIDER=openrouter
 OPENROUTER_API_KEY=...
-OPENROUTER_MODEL=openrouter/free
+OPENROUTER_MODEL=inclusionai/ling-2.6-flash:free
 OPENROUTER_SITE_URL=https://your-domain.example
 OPENROUTER_APP_NAME=LeetPhil
 ```
 
-The free OpenRouter router is useful for demos and low-volume practice, but production traffic may need a paid or pinned model for reliability.
+The recommended free OpenRouter model is `inclusionai/ling-2.6-flash:free` because it currently supports structured JSON output and passed a live LeetPhil smoke test. Free models are useful for demos and low-volume practice, but production traffic may need a paid or pinned model for reliability.
+When a free model cannot route strict JSON-schema parameters, LeetPhil retries with a JSON-only prompt and validates the result locally.
+
+Use Gemini:
+
+```bash
+JUDGE_PROVIDER=gemini
+GEMINI_API_KEY=...
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+The recommended Gemini free-tier starting point is `gemini-2.5-flash`: it supports structured JSON output and has enough reasoning quality for rubric feedback. If you mainly need lower latency or quota-friendly demos, try `gemini-2.5-flash-lite`.
