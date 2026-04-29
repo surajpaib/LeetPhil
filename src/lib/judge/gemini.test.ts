@@ -72,4 +72,96 @@ describe("GeminiJudgeProvider", () => {
       })
     ).rejects.toThrow("quota exceeded");
   });
+
+  it("retries transient Gemini provider failures", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: {
+              message: "The model is overloaded. Please try again later."
+            }
+          }),
+          { status: 503 }
+        )
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            candidates: [
+              {
+                content: {
+                  parts: [{ text: validEvaluationContent() }]
+                }
+              }
+            ]
+          }),
+          { status: 200 }
+        )
+      );
+
+    const provider = new GeminiJudgeProvider({
+      apiKey: "test-key",
+      fetcher,
+      retryDelayMs: 0
+    });
+
+    const evaluation = await provider.evaluate({
+      challenge: seedChallenges[0],
+      answer: Array.from({ length: 180 }, (_, index) => `claim${index}`).join(" ")
+    });
+
+    expect(fetcher).toHaveBeenCalledTimes(2);
+    expect(evaluation.overallScore).toBe(7.8);
+  });
+
+  it("falls back to plain JSON mode when the schema request keeps failing transiently", async () => {
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: {
+              message: "Provider returned error: Try again."
+            }
+          }),
+          { status: 502 }
+        )
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            candidates: [
+              {
+                content: {
+                  parts: [{ text: validEvaluationContent() }]
+                }
+              }
+            ]
+          }),
+          { status: 200 }
+        )
+      );
+
+    const provider = new GeminiJudgeProvider({
+      apiKey: "test-key",
+      fetcher,
+      maxRetries: 0
+    });
+
+    const evaluation = await provider.evaluate({
+      challenge: seedChallenges[0],
+      answer: Array.from({ length: 180 }, (_, index) => `claim${index}`).join(" ")
+    });
+
+    const [, strictInit] = fetcher.mock.calls[0] as [URL, RequestInit];
+    const [, fallbackInit] = fetcher.mock.calls[1] as [URL, RequestInit];
+    const strictBody = JSON.parse(String(strictInit.body));
+    const fallbackBody = JSON.parse(String(fallbackInit.body));
+
+    expect(strictBody.generationConfig.responseSchema).toBeDefined();
+    expect(fallbackBody.generationConfig.responseSchema).toBeUndefined();
+    expect(evaluation.overallScore).toBe(7.8);
+  });
 });

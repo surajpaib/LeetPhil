@@ -48,8 +48,9 @@ export function AnswerWorkspace({ action, initialState }: AnswerWorkspaceProps) 
           </button>
         </div>
       </form>
-      {state.status === "error" ? <div className="error-panel">{state.message}</div> : null}
-      {state.status === "success" && state.evaluation ? (
+      {pending ? <div className="notice-panel">Evaluating your argument. This can take a moment.</div> : null}
+      {!pending && state.status === "error" ? <div className="error-panel">{state.message}</div> : null}
+      {!pending && state.status === "success" && state.evaluation ? (
         <EvaluationResult evaluation={state.evaluation} />
       ) : null}
     </section>
