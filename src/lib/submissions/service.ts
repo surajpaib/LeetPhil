@@ -101,7 +101,7 @@ export async function evaluateSubmission(input: {
 
     throw new SubmissionError(
       "EVALUATION_FAILED",
-      "The draft was saved, but the LLM judge could not complete the evaluation. Try again from history."
+      "The draft was saved, but the LLM judge could not complete the evaluation. Try again from your dashboard."
     );
   }
 }

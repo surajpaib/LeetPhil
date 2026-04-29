@@ -41,7 +41,7 @@ export async function submitAnswer(
       judge
     });
 
-    revalidatePath("/history");
+    revalidatePath("/dashboard");
     revalidatePath(`/challenge/${challengeSlug}`);
 
     return {

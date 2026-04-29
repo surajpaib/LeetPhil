@@ -20,7 +20,7 @@ LeetPhil is a philosophy practice site for plain-text thought problems. Users si
    npm run dev
    ```
 
-For local development without an LLM key, set `JUDGE_PROVIDER=mock`. Supabase is still required for sign-in and private attempt history.
+For local development without an LLM key, set `JUDGE_PROVIDER=mock`. Supabase is still required for sign-in and the private dashboard.
 
 ## Judge Providers
 

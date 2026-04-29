@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
-import type { AttemptHistoryItem } from "@/lib/history";
+import { formatTrackLabel, type AttemptHistoryItem } from "@/lib/dashboard";
 import { EvaluationResult } from "@/components/EvaluationResult";
 
 function statusIcon(status: AttemptHistoryItem["status"]) {
@@ -20,7 +20,7 @@ export function HistoryList({ items }: { items: AttemptHistoryItem[] }) {
     return (
       <div className="empty-state">
         <h2>No attempts yet</h2>
-        <p>Choose a challenge and submit a plain-text answer to start building history.</p>
+        <p>Choose a challenge and submit a plain-text answer to start building your dashboard.</p>
         <Link className="primary-button inline-button" href="/">
           Practice
         </Link>
@@ -34,7 +34,7 @@ export function HistoryList({ items }: { items: AttemptHistoryItem[] }) {
         <article className="history-item" key={item.id}>
           <header className="history-header">
             <div>
-              <p className="eyebrow">{item.challenge?.track ?? "Challenge"}</p>
+              <p className="eyebrow">{formatTrackLabel(item.challenge?.track)}</p>
               <h2>{item.challenge?.title ?? "Deleted challenge"}</h2>
               <span>{new Date(item.createdAt).toLocaleString()}</span>
             </div>

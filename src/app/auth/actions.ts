@@ -24,7 +24,7 @@ export async function signIn(formData: FormData) {
     authRedirect("/auth", error.message);
   }
 
-  redirect("/history");
+  redirect("/dashboard");
 }
 
 export async function signUp(formData: FormData) {
@@ -46,7 +46,7 @@ export async function signUp(formData: FormData) {
       data: {
         display_name: displayName
       },
-      emailRedirectTo: `${origin}/history`
+      emailRedirectTo: `${origin}/dashboard`
     }
   });
 

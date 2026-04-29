@@ -13,7 +13,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
   const { supabase, user } = await getCurrentUser();
 
   if (user) {
-    redirect("/history");
+    redirect("/dashboard");
   }
 
   return (
@@ -25,7 +25,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       </section>
       {!supabase ? (
         <div className="notice-panel">
-          Add Supabase values to <code>.env.local</code> to enable auth and private history.
+          Add Supabase values to <code>.env.local</code> to enable auth and your private dashboard.
         </div>
       ) : (
         <AuthForm message={params?.message} />

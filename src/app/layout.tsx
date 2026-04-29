@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BrainCircuit, History, LogIn, LogOut } from "lucide-react";
+import { BrainCircuit, LayoutDashboard, LogIn, LogOut } from "lucide-react";
 import "./globals.css";
 import { signOut } from "@/app/auth/actions";
 import { getCurrentUser } from "@/lib/supabase/server";
@@ -24,9 +24,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <span>LeetPhil</span>
           </Link>
           <nav className="nav-actions" aria-label="Primary">
-            <Link className="nav-link" href="/history">
-              <History size={18} aria-hidden="true" />
-              <span>History</span>
+            <Link className="nav-link" href="/dashboard">
+              <LayoutDashboard size={18} aria-hidden="true" />
+              <span>Dashboard</span>
             </Link>
             {user ? (
               <form action={signOut}>

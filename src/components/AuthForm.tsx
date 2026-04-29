@@ -6,7 +6,7 @@ export function AuthForm({ message }: { message?: string }) {
       <form className="form-panel" action={signIn}>
         <div>
           <h2>Sign in</h2>
-          <p>Continue an existing practice history.</p>
+          <p>Continue an existing practice dashboard.</p>
         </div>
         <label>
           Email
