@@ -2,13 +2,17 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { HistoryList } from "@/components/HistoryList";
+import { DashboardRefresher } from "@/components/DashboardRefresher";
 import { getDashboardData } from "@/lib/dashboard";
+
+export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
   const { items, metrics, isConfigured, isAuthenticated } = await getDashboardData();
 
   return (
     <div className="page-shell">
+      <DashboardRefresher />
       <section className="page-heading compact-heading">
         <div>
           <p className="eyebrow">Private practice</p>
