@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Send, Sparkles } from "lucide-react";
 import type { SubmissionActionState } from "@/app/challenge/[slug]/actions";
 import { MAX_ANSWER_WORDS, MIN_ANSWER_WORDS, countWords } from "@/lib/judge/rubric";
@@ -12,8 +13,15 @@ type AnswerWorkspaceProps = {
 };
 
 export function AnswerWorkspace({ action, initialState }: AnswerWorkspaceProps) {
+  const router = useRouter();
   const [answer, setAnswer] = useState("");
   const [state, formAction, pending] = useActionState(action, initialState);
+
+  useEffect(() => {
+    if (!pending && state.status === "success") {
+      router.refresh();
+    }
+  }, [pending, state.status, router]);
   const wordCount = useMemo(() => countWords(answer), [answer]);
   const inRange = wordCount >= MIN_ANSWER_WORDS && wordCount <= MAX_ANSWER_WORDS;
 
