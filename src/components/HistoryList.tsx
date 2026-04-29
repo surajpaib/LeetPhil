@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
-import { formatTrackLabel, type AttemptHistoryItem } from "@/lib/dashboard";
+import { formatTrackLabel, type AttemptHistoryItem } from "@/lib/dashboard-types";
 import { EvaluationResult } from "@/components/EvaluationResult";
 
 function statusIcon(status: AttemptHistoryItem["status"]) {

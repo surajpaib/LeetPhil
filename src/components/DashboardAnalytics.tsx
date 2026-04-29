@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Activity, BarChart3, CalendarDays, CheckCircle2, Sigma } from "lucide-react";
-import type { DashboardMetrics } from "@/lib/dashboard";
+import type { DashboardMetrics } from "@/lib/dashboard-types";
 
 function formatScore(score: number | null) {
   return score === null ? "—" : score.toFixed(1);
