@@ -4,35 +4,6 @@ import type { EvaluationResult } from "@/lib/judge/schema";
 import { getCurrentUser } from "@/lib/supabase/server";
 import type { AttemptHistoryItem, ActivityDay, DashboardMetrics } from "@/lib/dashboard-types";
 
-type HistoryRow = {
-  id: string;
-  answer: string;
-  status: "draft" | "evaluated" | "failed";
-  word_count: number;
-  evaluation_error: string | null;
-  created_at: string;
-  challenges: {
-    slug: string;
-    title: string;
-    track: string;
-  } | null;
-  evaluations:
-    | Array<{
-        clarity: number;
-        argument_quality: number;
-        counterargument: number;
-        conceptual_depth: number;
-        prompt_fit: number;
-        overall_score: number;
-        verdict: "needs_work" | "solid" | "excellent";
-        summary: string;
-        strengths: string;
-        weaknesses: string;
-        revision_advice: string;
-      }>
-    | null;
-};
-
 const TRACKS: Track[] = ["identity", "ethics", "knowledge"];
 const VERDICTS: Array<EvaluationResult["verdict"]> = ["needs_work", "solid", "excellent"];
 const VERDICT_LABELS: Record<EvaluationResult["verdict"], string> = {
@@ -183,15 +154,13 @@ export async function getDashboardData(): Promise<{
     };
   }
 
-  const { data, error } = await supabase
+  const { data: attemptsData, error: attemptsError } = await supabase
     .from("attempts")
-    .select(
-      "id, answer, status, word_count, evaluation_error, created_at, challenges(slug, title, track), evaluations(clarity, argument_quality, counterargument, conceptual_depth, prompt_fit, overall_score, verdict, summary, strengths, weaknesses, revision_advice)"
-    )
+    .select("id, answer, status, word_count, evaluation_error, created_at, challenge_id")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
-  if (error || !data) {
+  if (attemptsError || !attemptsData) {
     return {
       items: [],
       metrics: buildDashboardMetrics([]),
@@ -200,8 +169,50 @@ export async function getDashboardData(): Promise<{
     };
   }
 
-  const items = (data as unknown as HistoryRow[]).map((row) => {
-    const evaluation = row.evaluations?.[0] ?? null;
+  const attemptIds = attemptsData.map((a) => a.id);
+  const { data: evaluationsData } = await supabase
+    .from("evaluations")
+    .select("attempt_id, clarity, argument_quality, counterargument, conceptual_depth, prompt_fit, overall_score, verdict, summary, strengths, weaknesses, revision_advice")
+    .in("attempt_id", attemptIds);
+
+  const evaluationsByAttempt = new Map<string, {
+    clarity: number;
+    argument_quality: number;
+    counterargument: number;
+    conceptual_depth: number;
+    prompt_fit: number;
+    overall_score: number;
+    verdict: "needs_work" | "solid" | "excellent";
+    summary: string;
+    strengths: string;
+    weaknesses: string;
+    revision_advice: string;
+  }>();
+
+  if (evaluationsData) {
+    for (const ev of evaluationsData) {
+      evaluationsByAttempt.set(ev.attempt_id, ev);
+    }
+  }
+
+  const { data: challengesData } = await supabase
+    .from("challenges")
+    .select("id, slug, title, track")
+    .in(
+      "id",
+      attemptsData.map((a) => a.challenge_id)
+    );
+
+  const challengesById = new Map<string, { slug: string; title: string; track: string }>();
+  if (challengesData) {
+    for (const c of challengesData) {
+      challengesById.set(c.id, c);
+    }
+  }
+
+  const items = attemptsData.map((row) => {
+    const evaluation = evaluationsByAttempt.get(row.id) ?? null;
+    const challenge = challengesById.get(row.challenge_id) ?? null;
 
     return {
       id: row.id,
@@ -210,7 +221,9 @@ export async function getDashboardData(): Promise<{
       wordCount: row.word_count,
       evaluationError: row.evaluation_error,
       createdAt: row.created_at,
-      challenge: row.challenges,
+      challenge: challenge
+        ? { slug: challenge.slug, title: challenge.title, track: challenge.track }
+        : null,
       evaluation: evaluation
         ? {
             clarity: evaluation.clarity,
